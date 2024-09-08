@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Chat App</string>
+
+    <string name="web_client_id">724364296692-p8553hbbhlob50pmif5lf6rik2mulhei.apps.googleusercontent.com</string>
+
+    <string name="facebook_app_id">1248773129871453</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">56789</string>
+
+    <string name="sign_in_with_google">Đăng nhập với Google</string>
+    <string name="sign_in_with_facebook">Đăng nhập với Facebook</string>
+    <string name="ask_user_login">Đăng nhập để tiếp tục</string>
 </resources>
