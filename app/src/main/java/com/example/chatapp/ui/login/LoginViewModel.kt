@@ -22,6 +22,15 @@ class LoginViewModel @Inject constructor(
     private val _state = MutableStateFlow(SignInState())
     val state = _state.asStateFlow()
 
+    private var _userData: UserData? = null
+    val userData: UserData?
+        get() {
+            if (_userData == null) {
+                _userData = getSignedInUser()
+            }
+            return _userData
+        }
+
     fun onSignInResult(result: SignInResult) {
         _state.update {
             it.copy(
@@ -31,6 +40,8 @@ class LoginViewModel @Inject constructor(
         }
         if (result.data != null) {
             saveUserUid()
+        } else {
+            setLoading(false)
         }
     }
 
@@ -75,13 +86,15 @@ class LoginViewModel @Inject constructor(
                 }
             }
         }
+
+        _userData = null
     }
 
     suspend fun signInGoogleWithIntent(intent: Intent): SignInResult {
         return signInRepository.signInGoogleWithIntent(intent)
     }
 
-    fun getSignedInUser(): UserData? {
+    private fun getSignedInUser(): UserData? {
         return signInRepository.getSignedInUser()
     }
 
@@ -97,5 +110,5 @@ class LoginViewModel @Inject constructor(
 data class SignInState(
     val isSignInSuccessful: Boolean = false,
     val signInError: String? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
 )

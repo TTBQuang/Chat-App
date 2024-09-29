@@ -18,10 +18,11 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
+        testInstrumentationRunner = "com.example.chatapp.util.CustomTestRunner"
     }
 
     buildTypes {
@@ -64,6 +65,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.play.services.auth)
+    androidTestImplementation(libs.androidx.navigation.testing)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,8 +81,18 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.coil.compose)
-    implementation (libs.facebook.android.sdk)
+    implementation(libs.facebook.android.sdk)
     implementation(libs.firebase.firestore)
+
+    testImplementation(libs.kotlin.mockito.kotlin)
+    testImplementation(libs.mockito.core)
+    androidTestImplementation(libs.mockito.android)
+
+
+    // For instrumented tests.
+    androidTestImplementation(libs.hilt.android.testing)
+    // ...with Kotlin.
+    kaptAndroidTest(libs.hilt.android.compiler)
 }
 
 kapt {

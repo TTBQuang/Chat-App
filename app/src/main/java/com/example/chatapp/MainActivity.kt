@@ -2,7 +2,6 @@ package com.example.chatapp
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -10,8 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.chatapp.data.network.SignInResult
 import com.example.chatapp.data.network.UserData
+import com.example.chatapp.ui.home.HomeScreen
 import com.example.chatapp.ui.theme.ChatAppTheme
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
@@ -34,6 +36,7 @@ import kotlin.coroutines.suspendCoroutine
 class MainActivity : ComponentActivity() {
     private lateinit var callbackManager: CallbackManager
     private lateinit var firebaseAuth: FirebaseAuth
+    lateinit var navController: NavHostController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +52,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainNavigation(this)
+                    navController = rememberNavController()
+                    MainNavigation(navController = navController, activity = this)
                 }
             }
         }

@@ -10,14 +10,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import com.example.chatapp.data.network.UserData
+import com.example.chatapp.ui.home.ProfileDialog
 import com.example.chatapp.ui.home.HomeScreen
 import com.example.chatapp.ui.login.LoginScreen
 import com.example.chatapp.ui.login.LoginViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import kotlin.math.log
 
 @Serializable
 object Login
@@ -25,9 +30,11 @@ object Login
 @Serializable
 object Home
 
+@Serializable
+object Profile
+
 @Composable
-fun MainNavigation(activity: MainActivity) {
-    val navController = rememberNavController()
+fun MainNavigation(activity: MainActivity, navController: NavHostController = rememberNavController()) {
     val coroutineScope = rememberCoroutineScope()
     val loginViewModel: LoginViewModel = hiltViewModel()
 
@@ -36,7 +43,7 @@ fun MainNavigation(activity: MainActivity) {
             val state by loginViewModel.state.collectAsStateWithLifecycle()
 
             LaunchedEffect(key1 = Unit) {
-                if (loginViewModel.getSignedInUser() != null) {
+                if (loginViewModel.userData != null) {
                     navController.navigate(route = Home)
                 }
             }
@@ -86,15 +93,29 @@ fun MainNavigation(activity: MainActivity) {
         }
 
         composable<Home> {
-            HomeScreen(
-                userData = loginViewModel.getSignedInUser(),
-                onSignOut = {
-                    coroutineScope.launch {
-                        loginViewModel.signOut()
+            loginViewModel.userData?.let { userData ->
+                HomeScreen(
+                    userData = userData,
+                    onSeeProfile = { navController.navigate(route = Profile) }
+                )
+            }
+        }
+
+        dialog<Profile> {
+            loginViewModel.userData?.let { userData ->
+                ProfileDialog(
+                    userData = userData,
+                    onDismissRequest = {
                         navController.popBackStack()
+                    },
+                    onSignOut = {
+                        coroutineScope.launch {
+                            loginViewModel.signOut()
+                            navController.popBackStack(Login, false)
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

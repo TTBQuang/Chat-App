@@ -1,5 +1,6 @@
 package com.example.chatapp.ui.login
 
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.compose.foundation.Image
@@ -28,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,7 +53,7 @@ fun LoginScreen(
 
     if (state.isLoading) {
         Box(contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(modifier = Modifier.testTag(""))
         }
     } else {
         Scaffold { innerPadding ->
@@ -173,7 +175,8 @@ fun GoogleLogInButton(state: SignInState, modifier: Modifier = Modifier, onClick
 }
 
 
-@Preview
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true)
 @Composable
 fun PreviewLoginScreen() {
     LoginScreen()
