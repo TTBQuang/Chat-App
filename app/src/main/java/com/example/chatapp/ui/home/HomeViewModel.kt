@@ -1,22 +1,53 @@
 package com.example.chatapp.ui.home
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.chatapp.data.network.UserData
-import com.example.chatapp.data.repository.SignInRepository
-import com.example.chatapp.ui.login.SignInState
+import androidx.lifecycle.viewModelScope
+import com.example.chatapp.data.model.UserData
+import com.example.chatapp.data.repository.HomeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val signInRepository: SignInRepository
+    private val homeRepository: HomeRepository
 ) : ViewModel() {
-    //private val _state = MutableStateFlow(HomeState())
-    //val state = _state.asStateFlow()
+    var homeUiState: HomeUiState by mutableStateOf(HomeUiState())
+        private set
+
+    init {
+        getAllUsers()
+    }
+
+    fun getAllUsers() {
+        viewModelScope.launch {
+            homeRepository.getAllUsers()
+                .catch { e ->
+                    println("Error: $e")
+                }
+                .collect { users ->
+                    homeUiState = HomeUiState(userDataList = users)
+                }
+        }
+    }
+
+    fun findUsersByUsername(query: String) {
+        viewModelScope.launch {
+            homeRepository.findUsersByUsername(query)
+                .catch { e ->
+                    println("Error: $e")
+                }
+                .collect { users ->
+                    homeUiState = HomeUiState(userDataList = users)
+                }
+        }
+    }
 }
 
-data class HomeState(
-    val userData: UserData
+data class HomeUiState(
+    val userDataList: List<UserData> = listOf()
 )

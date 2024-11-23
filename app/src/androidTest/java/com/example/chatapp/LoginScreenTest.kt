@@ -34,15 +34,15 @@ class LoginScreenTest {
     }
 
     @Test
-    fun testCircularProgressIndicator() {
+    fun circular_progress_indicator_show_or_hide_base_on_setLoading_attribute() {
         composeTestRule.activity.setContent {
             val loginViewModel: LoginViewModel = hiltViewModel()
             loginViewModel.setLoading(true)
-            composeTestRule.onNodeWithTag(context.resources.getString(R.string.test_tag_CircularProgressIndicator))
+            composeTestRule.onNodeWithTag(context.resources.getString(R.string.tag_CircularProgressIndicator))
                 .assertIsDisplayed()
 
             loginViewModel.setLoading(false)
-            composeTestRule.onNodeWithTag(context.resources.getString(R.string.test_tag_CircularProgressIndicator))
+            composeTestRule.onNodeWithTag(context.resources.getString(R.string.tag_CircularProgressIndicator))
                 .assertIsNotDisplayed()
         }
     }

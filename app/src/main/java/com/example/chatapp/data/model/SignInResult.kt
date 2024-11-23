@@ -1,4 +1,4 @@
-package com.example.chatapp.data.network
+package com.example.chatapp.data.model
 
 data class SignInResult(
     val data: UserData?,

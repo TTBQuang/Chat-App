@@ -3,10 +3,9 @@ package com.example.chatapp.data.repository
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
-import android.util.Log
 import com.example.chatapp.R
-import com.example.chatapp.data.network.SignInResult
-import com.example.chatapp.data.network.UserData
+import com.example.chatapp.data.model.SignInResult
+import com.example.chatapp.data.model.UserData
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.auth.GoogleAuthProvider
@@ -15,7 +14,6 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -24,7 +22,7 @@ interface SignInRepository {
     suspend fun signInGoogleWithIntent(intent: Intent): SignInResult
     suspend fun signOut()
     fun getSignedInUser(): UserData?
-    fun saveUserUid(): String
+    fun saveUserInfo(): String
 }
 
 class SignInRepositoryImpl @Inject constructor(
@@ -55,7 +53,7 @@ class SignInRepositoryImpl @Inject constructor(
             SignInResult(
                 data = user?.run {
                     UserData(
-                        userId = uid,
+                        uid = uid,
                         username = displayName,
                         profilePictureUrl = photoUrl?.toString()
                     )
@@ -84,28 +82,43 @@ class SignInRepositoryImpl @Inject constructor(
 
     override fun getSignedInUser(): UserData? = auth.currentUser?.run {
         UserData(
-            userId = uid,
+            uid = uid,
             username = displayName,
             profilePictureUrl = photoUrl?.toString()
         )
     }
 
-    override fun saveUserUid(): String {
+    override fun saveUserInfo(): String {
         var errorMessage = ""
         val db = Firebase.firestore
-        val currentUid = Firebase.auth.currentUser?.uid
+        val currentUser = Firebase.auth.currentUser
 
-        val user = hashMapOf(
-            "UID" to currentUid
+        val userData = currentUser?.run {
+            UserData(
+                uid = uid,
+                username = displayName,
+                profilePictureUrl = photoUrl?.toString()
+            )
+        }
+
+        if (userData == null) {
+            return context.getString(R.string.error_save_UID_user_null)
+        }
+
+        val userMap = hashMapOf(
+            "UID" to userData.uid,
+            "username" to userData.username,
+            "profilePictureUrl" to userData.profilePictureUrl
         )
 
         db.collection("users")
-            .whereEqualTo("UID", currentUid)
+            .whereEqualTo("UID", currentUser.uid)
             .get()
             .addOnSuccessListener { documents ->
                 if (documents.isEmpty) {
+                    // If don't find user with this UID, add to firestore
                     db.collection("users")
-                        .add(user)
+                        .add(userMap)
                         .addOnSuccessListener {
                             // success
                         }
@@ -120,7 +133,6 @@ class SignInRepositoryImpl @Inject constructor(
 
         return errorMessage
     }
-
 
     private fun buildGoogleSignInRequest(): BeginSignInRequest {
         return BeginSignInRequest.Builder()

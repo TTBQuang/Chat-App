@@ -2,6 +2,7 @@ package com.example.chatapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,9 +12,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.chatapp.data.network.SignInResult
-import com.example.chatapp.data.network.UserData
-import com.example.chatapp.ui.home.HomeScreen
+import com.example.chatapp.data.model.SignInResult
+import com.example.chatapp.data.model.UserData
+import com.example.chatapp.helper.FACEBOOK_LOGIN_REQUEST_CODE
+import com.example.chatapp.ui.chat.ChatScreen
 import com.example.chatapp.ui.theme.ChatAppTheme
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
@@ -41,6 +43,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+
         firebaseAuth = FirebaseAuth.getInstance()
         FacebookSdk.sdkInitialize(applicationContext)
         callbackManager = CallbackManager.Factory.create()
@@ -61,14 +65,13 @@ class MainActivity : ComponentActivity() {
 
     suspend fun handleFacebookAccessToken(token: AccessToken): SignInResult {
         val credential = FacebookAuthProvider.getCredential(token.token)
-
         return try {
             val user = firebaseAuth.signInWithCredential(credential).await().user
 
             SignInResult(
                 data = user?.run {
                     UserData(
-                        userId = uid,
+                        uid = uid,
                         username = displayName,
                         profilePictureUrl = photoUrl?.toString()
                     )
@@ -85,8 +88,6 @@ class MainActivity : ComponentActivity() {
 
     suspend fun launchFacebookLogin(): SignInResult {
         val loginManager = LoginManager.getInstance()
-
-        // Sử dụng suspendCoroutine để chờ kết quả từ callback
         return suspendCoroutine { continuation ->
             loginManager.logInWithReadPermissions(
                 this,
@@ -96,7 +97,6 @@ class MainActivity : ComponentActivity() {
             loginManager.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
                 override fun onSuccess(result: LoginResult) {
                     val accessToken = result.accessToken
-
                     CoroutineScope(Dispatchers.Main).launch {
                         val signInResult = handleFacebookAccessToken(accessToken)
                         continuation.resume(signInResult)

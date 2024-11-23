@@ -40,6 +40,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.chatapp.R
+import com.example.chatapp.ui.login.widget.AppLogo
+import com.example.chatapp.ui.login.widget.FacebookLoginButton
+import com.example.chatapp.ui.login.widget.GoogleLogInButton
 import kotlinx.coroutines.launch
 
 @Composable
@@ -53,7 +56,7 @@ fun LoginScreen(
 
     if (state.isLoading) {
         Box(contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(modifier = Modifier.testTag(""))
+            CircularProgressIndicator(modifier = Modifier.testTag(stringResource(id = R.string.tag_CircularProgressIndicator)))
         }
     } else {
         Scaffold { innerPadding ->
@@ -87,89 +90,6 @@ fun LoginScreen(
                     FacebookLoginButton(onClick = onFacebookButtonClick)
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun FacebookLoginButton(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
-    Box(
-        modifier = modifier
-            .clickable(onClick = onClick)
-            .background(color = Color(0xFF38569E), shape = RoundedCornerShape(6.dp))
-            .padding(start = 8.dp, bottom = 12.dp, top = 12.dp)
-            .fillMaxWidth()
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.facebook_logo),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(35.dp)
-                    .padding(end = 8.dp)
-            )
-            Text(
-                modifier = Modifier.padding(start = 5.dp),
-                text = stringResource(id = R.string.sign_in_with_facebook),
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-
-@Composable
-fun AppLogo(modifier: Modifier = Modifier) {
-    Image(
-        painter = painterResource(id = R.drawable.app_logo),
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
-        modifier = modifier
-    )
-}
-
-@Composable
-fun GoogleLogInButton(state: SignInState, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
-    val context = LocalContext.current
-    LaunchedEffect(key1 = state.signInError) {
-        state.signInError?.let { error ->
-            Toast.makeText(
-                context,
-                error,
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }
-
-    Box(
-        modifier = modifier
-            .background(color = Color.White, shape = RoundedCornerShape(6.dp))
-            .clickable(onClick = onClick)
-            .padding(start = 12.dp, bottom = 12.dp, top = 12.dp)
-            .fillMaxWidth()
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.google_icon),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(35.dp)
-                    .padding(end = 8.dp)
-            )
-            Text(
-                text = stringResource(id = R.string.sign_in_with_google),
-                color = Color.Black,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
         }
     }
 }

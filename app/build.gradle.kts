@@ -5,11 +5,12 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.service)
     id("kotlin-kapt")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.example.chatapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.chatapp"

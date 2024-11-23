@@ -2,12 +2,12 @@ package com.example.chatapp.repository
 
 import android.content.Intent
 import android.content.IntentSender
-import com.example.chatapp.data.network.SignInResult
-import com.example.chatapp.data.network.UserData
+import com.example.chatapp.data.model.SignInResult
+import com.example.chatapp.data.model.UserData
 import com.example.chatapp.data.repository.SignInRepository
-import com.example.chatapp.authenticatedFakeSignInResult
-import com.example.chatapp.fakeUserData
-import com.example.chatapp.unauthenticatedFakeSignInResult
+import com.example.chatapp.helper.authenticatedFakeSignInResult
+import com.example.chatapp.helper.fakeUserData
+import com.example.chatapp.helper.unauthenticatedFakeSignInResult
 import javax.inject.Inject
 
 class AuthenticatedFakeSignInRepository @Inject constructor() : SignInRepository {
@@ -36,7 +36,7 @@ class AuthenticatedFakeSignInRepository @Inject constructor() : SignInRepository
         }
     }
 
-    override fun saveUserUid(): String {
+    override fun saveUserInfo(): String {
         return ""
     }
 }
@@ -58,7 +58,7 @@ class UnauthenticatedFakeSignInRepository @Inject constructor() : SignInReposito
         return null
     }
 
-    override fun saveUserUid(): String {
+    override fun saveUserInfo(): String {
         return "errorMessage"
     }
 }

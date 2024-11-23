@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.google.service) apply false
+    alias(libs.plugins.compose.compiler) apply false
 }
 
 buildscript {

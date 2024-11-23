@@ -11,16 +11,16 @@
       <SelectionState runConfigName="AuthenticatedNavigationTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="verifyLoginScreenWhenSignOutBtnClicked()">
+      <SelectionState runConfigName="show_chat_history_list_in_home_screen()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="verifyProfileDialogCloseWhenClickOutside()">
+      <SelectionState runConfigName="show_chat_history_list_in_home_screen() (1)">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="navigateToHomeScreenWhenSignInSuccess()">
+      <SelectionState runConfigName="show_result_chat_history_list_after_delay_when_user_enter_text_field()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="verifyHomeScreenAndSignInResultWhenSignInSuccess()">
+      <SelectionState runConfigName="onSearch_called_after_enter_search_bar()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

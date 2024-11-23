@@ -3,8 +3,8 @@ package com.example.chatapp.ui.login
 import android.content.Intent
 import android.content.IntentSender
 import androidx.lifecycle.ViewModel
-import com.example.chatapp.data.network.SignInResult
-import com.example.chatapp.data.network.UserData
+import com.example.chatapp.data.model.SignInResult
+import com.example.chatapp.data.model.UserData
 import com.example.chatapp.data.repository.SignInRepository
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -39,14 +39,14 @@ class LoginViewModel @Inject constructor(
             )
         }
         if (result.data != null) {
-            saveUserUid()
+            saveUserInfo()
         } else {
             setLoading(false)
         }
     }
 
-    private fun saveUserUid() {
-        val errorMessage = signInRepository.saveUserUid()
+    private fun saveUserInfo() {
+        val errorMessage = signInRepository.saveUserInfo()
         if (errorMessage.isEmpty()) {
             _state.update {
                 it.copy(
@@ -87,6 +87,12 @@ class LoginViewModel @Inject constructor(
             }
         }
 
+        _state.update {
+            it.copy(
+                isSignInSuccessful = false,
+                isLoading = false
+            )
+        }
         _userData = null
     }
 

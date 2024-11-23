@@ -1,6 +1,6 @@
 package com.example.chatapp
 
-import androidx.activity.ComponentActivity.RESULT_OK
+import android.app.Activity.RESULT_OK
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,14 +15,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
-import com.example.chatapp.data.network.UserData
-import com.example.chatapp.ui.home.ProfileDialog
+import com.example.chatapp.ui.chat.ChatScreen
 import com.example.chatapp.ui.home.HomeScreen
+import com.example.chatapp.ui.home.widget.ProfileDialog
 import com.example.chatapp.ui.login.LoginScreen
 import com.example.chatapp.ui.login.LoginViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import kotlin.math.log
 
 @Serializable
 object Login
@@ -33,8 +32,14 @@ object Home
 @Serializable
 object Profile
 
+@Serializable
+object Chat
+
 @Composable
-fun MainNavigation(activity: MainActivity, navController: NavHostController = rememberNavController()) {
+fun MainNavigation(
+    activity: MainActivity,
+    navController: NavHostController = rememberNavController()
+) {
     val coroutineScope = rememberCoroutineScope()
     val loginViewModel: LoginViewModel = hiltViewModel()
 
@@ -96,7 +101,10 @@ fun MainNavigation(activity: MainActivity, navController: NavHostController = re
             loginViewModel.userData?.let { userData ->
                 HomeScreen(
                     userData = userData,
-                    onSeeProfile = { navController.navigate(route = Profile) }
+                    onSeeProfile = { navController.navigate(route = Profile) },
+                    onChatItemClick = {
+                        navController.navigate(route = Chat)
+                    }
                 )
             }
         }
@@ -116,6 +124,10 @@ fun MainNavigation(activity: MainActivity, navController: NavHostController = re
                     }
                 )
             }
+        }
+
+        composable<Chat> {
+            ChatScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }
