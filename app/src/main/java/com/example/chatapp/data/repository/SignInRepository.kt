@@ -53,7 +53,7 @@ class SignInRepositoryImpl @Inject constructor(
             SignInResult(
                 data = user?.run {
                     UserData(
-                        uid = uid,
+                        UID = uid,
                         username = displayName,
                         profilePictureUrl = photoUrl?.toString()
                     )
@@ -82,7 +82,7 @@ class SignInRepositoryImpl @Inject constructor(
 
     override fun getSignedInUser(): UserData? = auth.currentUser?.run {
         UserData(
-            uid = uid,
+            UID = uid,
             username = displayName,
             profilePictureUrl = photoUrl?.toString()
         )
@@ -95,7 +95,7 @@ class SignInRepositoryImpl @Inject constructor(
 
         val userData = currentUser?.run {
             UserData(
-                uid = uid,
+                UID = uid,
                 username = displayName,
                 profilePictureUrl = photoUrl?.toString()
             )
@@ -106,7 +106,7 @@ class SignInRepositoryImpl @Inject constructor(
         }
 
         val userMap = hashMapOf(
-            "UID" to userData.uid,
+            "UID" to userData.UID,
             "username" to userData.username,
             "profilePictureUrl" to userData.profilePictureUrl
         )

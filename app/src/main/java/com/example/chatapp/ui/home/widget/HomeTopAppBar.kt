@@ -48,24 +48,6 @@ fun HomeTopAppBar(
                     contentScale = ContentScale.Crop,
                     placeholder = painterResource(id = R.drawable.avatar),
                 )
-                Spacer(Modifier.weight(1f))
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = CircleShape
-                        )
-                        .clip(CircleShape)
-                        .clickable { }
-                        .padding(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Create,
-                        contentDescription = "Create",
-                        modifier = Modifier.size(35.dp)
-                    )
-                }
             }
         }
     )

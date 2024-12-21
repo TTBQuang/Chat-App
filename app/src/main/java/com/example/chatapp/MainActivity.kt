@@ -15,7 +15,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.chatapp.data.model.SignInResult
 import com.example.chatapp.data.model.UserData
 import com.example.chatapp.helper.FACEBOOK_LOGIN_REQUEST_CODE
-import com.example.chatapp.ui.chat.ChatScreen
 import com.example.chatapp.ui.theme.ChatAppTheme
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
@@ -71,7 +70,7 @@ class MainActivity : ComponentActivity() {
             SignInResult(
                 data = user?.run {
                     UserData(
-                        uid = uid,
+                        UID = uid,
                         username = displayName,
                         profilePictureUrl = photoUrl?.toString()
                     )

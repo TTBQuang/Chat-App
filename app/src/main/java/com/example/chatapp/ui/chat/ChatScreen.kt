@@ -15,22 +15,29 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.chatapp.R
+import com.example.chatapp.data.model.Message
+import com.example.chatapp.data.model.UserData
 import com.example.chatapp.helper.fakeUserData
 import com.example.chatapp.ui.chat.widget.ChatBottomBar
 import com.example.chatapp.ui.chat.widget.ChatTopBar
@@ -38,26 +45,63 @@ import com.example.chatapp.ui.theme.ChatAppTheme
 import com.example.chatapp.ui.theme.chatItemBackgroundColor
 
 @Composable
-fun ChatScreen(modifier: Modifier = Modifier, onNavigateBack: () -> Unit = {}) {
-    Scaffold(
-        modifier = modifier.navigationBarsPadding(),
-        topBar = {
-            ChatTopBar(userData = fakeUserData, onBackClick = onNavigateBack)
-        },
-        bottomBar = {
-            ChatBottomBar(
-                onSendClick = { },
-                onAttachClick = { }
-            )
+fun ChatScreen(
+    user: UserData,
+    partnerId: String,
+    modifier: Modifier = Modifier,
+    chatViewModel: ChatViewModel = hiltViewModel(),
+    onNavigateBack: () -> Unit = {}
+) {
+    val state = chatViewModel.chatUiState
+
+    LaunchedEffect(partnerId) {
+        chatViewModel.fetchPartnerInfo(partnerId)
+    }
+
+    LaunchedEffect(state.partner) {
+        state.partner?.let { chatViewModel.fetchAndCreateChatRoom(user, it) }
+    }
+
+    if (state.partner == null) {
+        Box(contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(modifier = Modifier.testTag(stringResource(id = R.string.tag_CircularProgressIndicator)))
         }
-    ) { innerPadding ->
-        //ItemList(modifier = Modifier.padding(innerPadding))
-        ChatUserInfo(modifier = Modifier.padding(innerPadding))
+    } else {
+        Scaffold(
+            modifier = modifier.navigationBarsPadding(),
+            topBar = {
+                ChatTopBar(userData = state.partner, onBackClick = onNavigateBack)
+            },
+            bottomBar = {
+                ChatBottomBar(
+                    onSendClick = {
+                        chatViewModel.sendMessage(
+                            user,
+                            state.partner,
+                            Message(content = it, sender = user.UID ?: "")
+                        )
+                    },
+                )
+            }
+        ) { innerPadding ->
+            if (state.chatRoom?.messages?.isEmpty() == false) {
+                ChatList(
+                    partner = state.partner,
+                    messages = state.chatRoom.messages,
+                    modifier = Modifier.padding(innerPadding)
+                )
+            } else {
+                ChatUserInfo(
+                    partner = state.partner,
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+        }
     }
 }
 
 @Composable
-fun ChatUserInfo(modifier: Modifier = Modifier) {
+fun ChatUserInfo(partner: UserData, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -65,7 +109,7 @@ fun ChatUserInfo(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
-            model = fakeUserData.profilePictureUrl,
+            model = partner.profilePictureUrl,
             contentDescription = "Profile picture",
             modifier = Modifier
                 .size(100.dp)
@@ -74,7 +118,7 @@ fun ChatUserInfo(modifier: Modifier = Modifier) {
             placeholder = painterResource(id = R.drawable.avatar),
         )
         Text(
-            text = fakeUserData.username ?: "",
+            text = partner.username ?: "",
             modifier = Modifier.padding(top = 8.dp),
             fontSize = 25.sp,
         )
@@ -82,30 +126,30 @@ fun ChatUserInfo(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ItemList(modifier: Modifier = Modifier) {
+fun ChatList(partner: UserData, messages: List<Message>, modifier: Modifier = Modifier) {
     LazyColumn(
         modifier = modifier.fillMaxHeight()
     ) {
-        items(20) { index ->
-            ChatItem(index = index)
+        items(messages.size) { index ->
+            ChatItem(message = messages[index], partner = partner)
         }
     }
 }
 
 @Composable
-fun ChatItem(index: Int) {
+fun ChatItem(message: Message, partner: UserData) {
     val paddingChatItem = LocalConfiguration.current.screenWidthDp.dp / 5
 
-    val alignment = if (index % 2 == 0) {
+    val alignment = if (message.sender != partner.UID) {
         Alignment.CenterEnd
     } else {
         Alignment.CenterStart
     }
 
     Row(verticalAlignment = Alignment.Top) {
-        if (index % 2 == 0)
+        if (message.sender == partner.UID)
             AsyncImage(
-                model = fakeUserData.profilePictureUrl,
+                model = partner.profilePictureUrl,
                 contentDescription = "Profile picture",
                 modifier = Modifier
                     .padding(start = 8.dp, top = 8.dp)
@@ -118,14 +162,14 @@ fun ChatItem(index: Int) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = if (index % 2 == 0) 12.dp else paddingChatItem,
-                    end = if (index % 2 == 0) paddingChatItem else 12.dp,
+                    start = if (message.sender == partner.UID) 12.dp else paddingChatItem,
+                    end = if (message.sender == partner.UID) paddingChatItem else 12.dp,
                     top = 8.dp,
                     bottom = 8.dp
                 )
                 .wrapContentSize(alignment)
                 .background(
-                    color = if (index % 2 == 0)
+                    color = if (message.sender != partner.UID)
                         MaterialTheme.colorScheme.surfaceContainerHigh
                     else
                         chatItemBackgroundColor,
@@ -133,7 +177,7 @@ fun ChatItem(index: Int) {
                 )
         ) {
             Text(
-                text = "Item Item Item Item Item Item Item Item Item $index",
+                text = message.content,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
         }
@@ -147,7 +191,7 @@ fun ChatItem(index: Int) {
 fun PreviewChatScreen() {
     ChatAppTheme {
         Surface {
-            ChatScreen()
+            ChatScreen(user = fakeUserData, partnerId = fakeUserData.UID ?: "")
         }
     }
 }

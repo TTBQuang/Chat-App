@@ -23,7 +23,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     userData: UserData,
     onSeeProfile: () -> Unit = {},
-    onChatItemClick: () -> Unit = {},
+    onChatItemClick: (String) -> Unit = {},
 ) {
     val state = homeViewModel.homeUiState
 
@@ -52,7 +52,7 @@ fun HomeScreen(
 fun PreviewHomeScreen() {
     ChatAppTheme {
         Surface {
-            HomeScreen(userData = UserData(uid = "1", username = "2", profilePictureUrl = null))
+            HomeScreen(userData = UserData(UID = "1", username = "2", profilePictureUrl = null))
         }
     }
 }
@@ -61,52 +61,6 @@ fun PreviewHomeScreen() {
 @Composable
 fun PreviewDialog() {
     ChatAppTheme {
-        ProfileDialog(userData = UserData(uid = "1", username = "2", profilePictureUrl = null))
+        ProfileDialog(userData = UserData(UID = "1", username = "2", profilePictureUrl = null))
     }
 }
-
-//@Composable
-//fun HorizontalCircleList(modifier: Modifier = Modifier) {
-//    val colors = listOf(
-//        Color.Red,
-//        Color.Green,
-//        Color.Blue,
-//        Color.Yellow,
-//        Color.Cyan,
-//        Color.Red,
-//        Color.Green,
-//        Color.Blue,
-//        Color.Yellow,
-//    )
-//
-//    LazyRow(
-//        modifier = modifier.padding(vertical = 8.dp),
-//        horizontalArrangement = Arrangement.spacedBy(16.dp)
-//    ) {
-//        items(colors) { color ->
-//            CircleItem(color = color, size = 60.dp)
-//        }
-//    }
-//}
-//
-//@Composable
-//fun CircleItem(color: Color, size: Dp) {
-//    Column(
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        modifier = Modifier.width(size)
-//    ) {
-//        Box(
-//            modifier = Modifier
-//                .size(size)
-//                .background(color, shape = CircleShape)
-//        )
-//        Text(
-//            text = "Quang",
-//            modifier = Modifier.width(size),
-//            fontSize = 12.sp,
-//            textAlign = TextAlign.Center,
-//            maxLines = 1,
-//            overflow = TextOverflow.Ellipsis,
-//        )
-//    }
-//}

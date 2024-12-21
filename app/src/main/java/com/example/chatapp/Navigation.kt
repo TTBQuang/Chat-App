@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.chatapp.ui.chat.ChatScreen
 import com.example.chatapp.ui.home.HomeScreen
 import com.example.chatapp.ui.home.widget.ProfileDialog
@@ -33,7 +34,7 @@ object Home
 object Profile
 
 @Serializable
-object Chat
+data class Chat(val partnerId: String)
 
 @Composable
 fun MainNavigation(
@@ -103,7 +104,7 @@ fun MainNavigation(
                     userData = userData,
                     onSeeProfile = { navController.navigate(route = Profile) },
                     onChatItemClick = {
-                        navController.navigate(route = Chat)
+                        navController.navigate(route = Chat(partnerId = it))
                     }
                 )
             }
@@ -126,8 +127,14 @@ fun MainNavigation(
             }
         }
 
-        composable<Chat> {
-            ChatScreen(onNavigateBack = { navController.popBackStack() })
+        composable<Chat> { backStackEntry ->
+            loginViewModel.userData?.let { it1 ->
+                ChatScreen(
+                    user = it1,
+                    partnerId = backStackEntry.toRoute<Chat>().partnerId,
+                    onNavigateBack = { navController.popBackStack() },
+                )
+            }
         }
     }
 }

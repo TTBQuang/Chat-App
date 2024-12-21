@@ -14,7 +14,7 @@ import com.example.chatapp.data.model.UserData
 fun HistoryChatList(
     userDataList: List<UserData>,
     modifier: Modifier = Modifier,
-    onItemClick: () -> Unit = {}
+    onItemClick: (String) -> Unit = {}
 ) {
     LazyColumn(
         modifier = modifier
@@ -23,7 +23,7 @@ fun HistoryChatList(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         items(userDataList) { item ->
-            HistoryChatItem(userData = item, lastMessage = "item.second", onClick = onItemClick)
+            HistoryChatItem(user = item, lastMessage = "item.second", onClick = onItemClick)
         }
     }
 }

@@ -14,7 +14,6 @@ interface HomeRepository {
 }
 
 class FirebaseHomeRepository @Inject constructor() : HomeRepository {
-
     override fun getAllUsers(): Flow<List<UserData>> = callbackFlow {
         val db = Firebase.firestore
         val listenerRegistration = db.collection("users")
@@ -27,7 +26,7 @@ class FirebaseHomeRepository @Inject constructor() : HomeRepository {
                 if (snapshot != null) {
                     val usersList = snapshot.documents.mapNotNull { document ->
                         UserData(
-                            uid = document.getString("UID"),
+                            UID = document.getString("UID"),
                             username = document.getString("username"),
                             profilePictureUrl = document.getString("profilePictureUrl")
                         )
@@ -51,7 +50,7 @@ class FirebaseHomeRepository @Inject constructor() : HomeRepository {
                 if (snapshot != null) {
                     val filteredUsers = snapshot.documents.mapNotNull { document ->
                         val userData = UserData(
-                            uid = document.getString("UID"),
+                            UID = document.getString("UID"),
                             username = document.getString("username"),
                             profilePictureUrl = document.getString("profilePictureUrl")
                         )

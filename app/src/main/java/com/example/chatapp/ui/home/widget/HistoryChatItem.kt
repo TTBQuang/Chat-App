@@ -23,16 +23,16 @@ import com.example.chatapp.R
 import com.example.chatapp.data.model.UserData
 
 @Composable
-fun HistoryChatItem(userData: UserData, lastMessage: String, onClick: () -> Unit = {}) {
+fun HistoryChatItem(user: UserData, lastMessage: String, onClick: (String) -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable { onClick(user.UID ?: "") }
             .testTag(stringResource(id = R.string.tag_history_chat_item)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(
-            model = userData.profilePictureUrl,
+            model = user.profilePictureUrl,
             contentDescription = "Profile Image",
             modifier = Modifier
                 .size(60.dp)
@@ -40,18 +40,11 @@ fun HistoryChatItem(userData: UserData, lastMessage: String, onClick: () -> Unit
                 .clip(CircleShape),
         )
 
-        Column(modifier = Modifier.padding(start = 8.dp)) {
-            Text(
-                text = userData.username ?: "",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.testTag(stringResource(id = R.string.tag_username_chat_item))
-            )
-            Text(
-                text = lastMessage,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-        }
+        Text(
+            text = user.username ?: "",
+            fontSize = 18.sp,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(start = 8.dp).testTag(stringResource(id = R.string.tag_username_chat_item))
+        )
     }
 }

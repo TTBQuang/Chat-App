@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -30,9 +30,9 @@ import com.example.chatapp.ui.theme.iconChatBottomBarColor
 @Composable
 fun ChatBottomBar(
     onSendClick: (String) -> Unit,
-    onAttachClick: () -> Unit
 ) {
     val chatText = rememberSaveable { mutableStateOf("") }
+    val keyboardController = LocalSoftwareKeyboardController.current // Lấy controller của bàn phím
 
     Row(
         modifier = Modifier
@@ -42,18 +42,6 @@ fun ChatBottomBar(
             .imePadding(),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = onAttachClick,
-            modifier = Modifier.size(36.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.AddCircle,
-                contentDescription = "Attach",
-                tint = Color(0xFF0B7BFF),
-                modifier = Modifier.size(28.dp)
-            )
-        }
-
         BasicTextField(
             value = chatText.value,
             onValueChange = { newText -> chatText.value = newText },
@@ -84,7 +72,11 @@ fun ChatBottomBar(
 
         IconButton(
             modifier = Modifier.size(36.dp),
-            onClick = { onSendClick(chatText.value) },
+            onClick = {
+                onSendClick(chatText.value) // Gọi hàm gửi tin nhắn
+                chatText.value = "" // Xóa nội dung trong ô chat
+                keyboardController?.hide() // Đóng bàn phím
+            },
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Send,
