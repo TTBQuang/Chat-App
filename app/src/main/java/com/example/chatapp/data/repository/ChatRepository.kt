@@ -27,23 +27,23 @@ class ChatRepositoryImpl @Inject constructor() : ChatRepository {
     override suspend fun fetchAndCreateChatRoom(userUID: String, partnerUID: String): Flow<ChatRoom> = callbackFlow {
         val firestore = FirebaseFirestore.getInstance()
 
-        // Bước 1: Truy vấn các chatrooms có userUID trong members
+        // Step 1: Query chatrooms that contain userUID
         val chatRoomsQuery = firestore.collection("ChatRoom")
             .whereArrayContains("members", userUID)
             .get()
             .await()
 
-        // Bước 2: Lọc chatroom có cả userUID và partnerUID
+        // Step 2: Find chatroom that contains both userUID and partnerUID
         val existingChatRoomDoc = chatRoomsQuery.documents.find { document ->
             val members = document.get("members") as? List<*>
             members?.containsAll(listOf(userUID, partnerUID)) ?: false
         }
 
-        // Nếu chatroom đã tồn tại
+        // Step 3: Listen to messages in chatroom
         if (existingChatRoomDoc != null) {
             val chatRoomId = existingChatRoomDoc.id
 
-            // Lắng nghe sự thay đổi trong sub-collection messages
+            // Listen to messages in chatroom
             val listenerRegistration = firestore.collection("ChatRoom")
                 .document(chatRoomId)
                 .collection("messages")
@@ -62,19 +62,19 @@ class ChatRepositoryImpl @Inject constructor() : ChatRepository {
                     }
                 }
 
-            // Lắng nghe kết thúc
+            // Close listener when flow is cancelled
             awaitClose { listenerRegistration.remove() }
         } else {
-            // Nếu không tìm thấy, tạo chatroom mới
+            // Step 4: Create new chatroom if not found
             val newChatRoomRef = firestore.collection("ChatRoom").document()
             val newChatRoom = ChatRoom(id = newChatRoomRef.id, messages = emptyList())
 
-            // Thêm document mới vào Firestore
+            // Add chatroom to Firestore
             newChatRoomRef.set(
                 mapOf("members" to listOf(userUID, partnerUID))
             ).await()
 
-            // Gửi trả về chatroom mới
+            // Send new chatroom to flow
             trySend(newChatRoom)
         }
     }
@@ -107,21 +107,19 @@ class ChatRepositoryImpl @Inject constructor() : ChatRepository {
     override suspend fun sendMessage(chatRoomId: String, message: Message) {
         val firestore = FirebaseFirestore.getInstance()
 
-        // Tạo thông tin message cần gửi, bao gồm cả thời gian gửi (sentAt)
+        // Create message data
         val messageData = mapOf(
             "content" to message.content,
-            "sender" to message.sender, // Nếu bạn lưu trữ thông tin người gửi dưới dạng UID, thì chỉ cần UID
-            "sentAt" to FieldValue.serverTimestamp() // Lưu thời gian gửi
+            "sender" to message.sender,
+            "sentAt" to FieldValue.serverTimestamp()
         )
 
-        // Thêm message vào sub-collection "messages" của ChatRoom
+        // Add message to chatroom
         firestore.collection("ChatRoom")
             .document(chatRoomId)
             .collection("messages")
             .add(messageData)
-            .await() // Đảm bảo thực thi bất đồng bộ và chờ kết quả
-
-        // Bạn có thể làm thêm các xử lý khác như thông báo thành công hay cập nhật trạng thái UI
+            .await()
     }
 
 }

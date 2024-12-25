@@ -89,6 +89,12 @@ dependencies {
     testImplementation(libs.mockito.core)
     androidTestImplementation(libs.mockito.android)
 
+    implementation("io.getstream:stream-video-android-ui-compose:1.1.0")
+
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+
 
     // For instrumented tests.
     androidTestImplementation(libs.hilt.android.testing)

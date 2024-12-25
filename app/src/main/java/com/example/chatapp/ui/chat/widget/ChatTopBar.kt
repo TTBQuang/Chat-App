@@ -1,5 +1,6 @@
 package com.example.chatapp.ui.chat.widget
 
+import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,8 +34,10 @@ import com.example.chatapp.ui.theme.iconChatTopBarColor
 @Composable
 fun ChatTopBar(
     userData: UserData,
+    partnerId: String,
     modifier: Modifier = Modifier,
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onCallIconClick: (String, String) -> Unit = { _, _ -> },
 ) {
     TopAppBar(
         title = {
@@ -66,6 +70,18 @@ fun ChatTopBar(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
+                    tint = iconChatTopBarColor,
+                )
+            }
+        },
+        actions = {
+            IconButton(
+                onClick = {
+                    onCallIconClick(userData.UID ?: "", partnerId) },
+            ) {
+                Icon(
+                    Icons.Default.Call,
+                    contentDescription = "Call",
                     tint = iconChatTopBarColor,
                 )
             }

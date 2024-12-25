@@ -1,6 +1,7 @@
 package com.example.chatapp.ui.chat
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -50,7 +52,8 @@ fun ChatScreen(
     partnerId: String,
     modifier: Modifier = Modifier,
     chatViewModel: ChatViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    onCall: (String, String) -> Unit = { _, _ -> },
 ) {
     val state = chatViewModel.chatUiState
 
@@ -70,14 +73,17 @@ fun ChatScreen(
         Scaffold(
             modifier = modifier.navigationBarsPadding(),
             topBar = {
-                ChatTopBar(userData = state.partner, onBackClick = onNavigateBack)
+                ChatTopBar(
+                    userData = user,
+                    partnerId = partnerId,
+                    onBackClick = onNavigateBack,
+                    onCallIconClick = onCall,
+                )
             },
             bottomBar = {
                 ChatBottomBar(
                     onSendClick = {
                         chatViewModel.sendMessage(
-                            user,
-                            state.partner,
                             Message(content = it, sender = user.UID ?: "")
                         )
                     },
