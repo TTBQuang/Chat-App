@@ -1,5 +1,8 @@
 package com.example.chatapp.data.repository
 
+import android.util.Log
+import com.example.chatapp.data.api.NotificationRequest
+import com.example.chatapp.data.api.RetrofitInstance
 import com.example.chatapp.data.model.ChatRoom
 import com.example.chatapp.data.model.Message
 import com.example.chatapp.data.model.UserData
@@ -14,8 +17,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.suspendCancellableCoroutine
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 interface ChatRepository {
     suspend fun fetchAndCreateChatRoom(userUID: String, partnerUID: String): Flow<ChatRoom>
@@ -24,6 +31,8 @@ interface ChatRepository {
 }
 
 class ChatRepositoryImpl @Inject constructor() : ChatRepository {
+    private val notificationService = RetrofitInstance.notificationService
+
     override suspend fun fetchAndCreateChatRoom(userUID: String, partnerUID: String): Flow<ChatRoom> = callbackFlow {
         val firestore = FirebaseFirestore.getInstance()
 
@@ -120,6 +129,85 @@ class ChatRepositoryImpl @Inject constructor() : ChatRepository {
             .collection("messages")
             .add(messageData)
             .await()
+
+        val members: List<String> = getMembersInChatRoom(chatRoomId)
+        for (member in members) {
+            if (member != message.sender) {
+                val token = getFCMToken(member)
+                if (token != null) {
+                    sendNotification(token, "New message from Chat App", message.content)
+                }
+            }
+        }
     }
 
+    private suspend fun getFCMToken(id: String): String? {
+        val db = Firebase.firestore
+
+        return suspendCoroutine { continuation ->
+            db.collection("users")
+                .whereEqualTo("UID", id)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (documents.isEmpty) {
+                        continuation.resumeWith(Result.success(null))
+                    } else {
+                        val user = documents.firstOrNull()
+                        val fcmToken = user?.getString("FCMToken")
+
+                        continuation.resumeWith(Result.success(fcmToken))
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("aaa", e.message.toString())
+                    continuation.resumeWith(Result.success(null))
+                }
+        }
+    }
+
+    private suspend fun getMembersInChatRoom(chatRoomId: String): List<String> {
+        val db = Firebase.firestore
+
+        return suspendCoroutine { continuation ->
+            db.collection("ChatRoom")
+                .document(chatRoomId)
+                .get()
+                .addOnSuccessListener { document ->
+                    val members = document.get("members") as? List<*>
+                    if (members != null) {
+                        val memberList = members.filterIsInstance<String>()
+                        continuation.resumeWith(Result.success(memberList))
+                    } else {
+                        continuation.resumeWith(Result.success(emptyList()))
+                    }
+                }
+                .addOnFailureListener { e ->
+                    continuation.resumeWith(Result.failure(e))
+                }
+        }
+    }
+
+
+    private fun sendNotification(token: String, title: String, body: String) {
+        val request = NotificationRequest(
+            token = token,
+            title = title,
+            body = body
+        )
+
+        notificationService.sendNotification(request).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Log.d("aaa", "Notification sent successfully!")
+                } else {
+                    Log.d("aaa","Failed to send notification: ${response.message()}")
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.d("aaa","onFailure: ${t.message}")
+                t.printStackTrace()
+            }
+        })
+    }
 }

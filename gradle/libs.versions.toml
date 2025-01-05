@@ -1,6 +1,7 @@
 [versions]
 agp = "8.7.2"
 coilCompose = "2.7.0"
+converterGson = "2.11.0"
 facebookAndroidSdk = "12.0.0"
 firebaseBom = "33.5.1"
 hiltAndroid = "2.52"
@@ -21,15 +22,19 @@ mockitoKotlinVersion = "5.4.0"
 navigationCompose = "2.8.4"
 googleService = "4.4.2"
 playServicesAuth = "21.2.0"
+retrofit = "2.11.0"
+streamVideoAndroidUiCompose = "1.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 facebook-android-sdk = { module = "com.facebook.android:facebook-android-sdk", version.ref = "facebookAndroidSdk" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hiltAndroidTesting" }
@@ -53,6 +58,8 @@ mockito-android = { module = "org.mockito:mockito-android", version.ref = "mocki
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "navigationCompose" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+stream-video-android-ui-compose = { module = "io.getstream:stream-video-android-ui-compose", version.ref = "streamVideoAndroidUiCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

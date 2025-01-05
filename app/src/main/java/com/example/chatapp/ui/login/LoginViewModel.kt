@@ -3,6 +3,7 @@ package com.example.chatapp.ui.login
 import android.content.Intent
 import android.content.IntentSender
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.chatapp.data.model.SignInResult
 import com.example.chatapp.data.model.UserData
 import com.example.chatapp.data.repository.SignInRepository
@@ -13,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,15 +40,20 @@ class LoginViewModel @Inject constructor(
                 signInError = result.errorMessage,
             )
         }
+
         if (result.data != null) {
-            saveUserInfo()
+            viewModelScope.launch {
+                saveUserInfo()
+            }
         } else {
             setLoading(false)
         }
     }
 
-    private fun saveUserInfo() {
+
+    private suspend fun saveUserInfo() {
         val errorMessage = signInRepository.saveUserInfo()
+
         if (errorMessage.isEmpty()) {
             _state.update {
                 it.copy(
@@ -63,6 +70,7 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
+
 
     fun resetState() {
         _state.update { SignInState() }

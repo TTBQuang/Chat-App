@@ -26,7 +26,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.chatapp.data.api.NotificationRequest
+import com.example.chatapp.data.api.NotificationService
 import com.example.chatapp.helper.STREAM_API_KEY
+import com.example.chatapp.ui.call.CallScreen
 import com.example.chatapp.ui.chat.ChatScreen
 import com.example.chatapp.ui.chat.ChatViewModel
 import com.example.chatapp.ui.home.HomeScreen
@@ -42,6 +45,8 @@ import io.getstream.video.android.core.call.state.LeaveCall
 import io.getstream.video.android.model.User
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import retrofit2.Callback
+import retrofit2.Response
 
 @Serializable
 object Login
@@ -191,76 +196,7 @@ fun MainNavigation(
                 ).build()
             }
 
-            VideoTheme {
-                Scaffold { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        val call = client.call(type = "default", id = callId)
-                        LaunchCallPermissions(
-                            call = call,
-                            onAllPermissionsGranted = {
-                                coroutineScope.launch {
-                                    call.join(create = true)
-                                }
-                            }
-                        )
-                        CallContent(
-                            enableInPictureInPicture = false,
-                            onCallAction = { action ->
-                                when (action) {
-                                    LeaveCall -> {
-                                        coroutineScope.launch {
-                                            try {
-                                                call.leave()
-                                                navController.popBackStack()
-                                                Toast.makeText(
-                                                    context,
-                                                    "Left call successfully",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                            } catch (e: Exception) {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Error leaving call: ${e.message}",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                            }
-                                        }
-                                    }
-
-                                    else -> {
-                                    }
-                                }
-                            },
-                            modifier = Modifier.fillMaxSize(),
-                            call = call,
-                            onBackPressed = {
-                                coroutineScope.launch {
-                                    try {
-                                        call.leave()
-                                        navController.popBackStack()
-                                        Toast.makeText(
-                                            context,
-                                            "Left call successfully",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    } catch (e: Exception) {
-                                        Toast.makeText(
-                                            context,
-                                            "Error leaving call: ${e.message}",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
-                                }
-                            },
-                        )
-                    }
-                }
-            }
+            CallScreen(client = client, callId = callId, navController = navController)
         }
     }
 }

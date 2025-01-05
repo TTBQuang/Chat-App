@@ -84,17 +84,16 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.facebook.android.sdk)
     implementation(libs.firebase.firestore)
+    implementation (libs.firebase.messaging)
 
     testImplementation(libs.kotlin.mockito.kotlin)
     testImplementation(libs.mockito.core)
     androidTestImplementation(libs.mockito.android)
 
-    implementation("io.getstream:stream-video-android-ui-compose:1.1.0")
+    implementation(libs.stream.video.android.ui.compose)
 
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-
-
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 
     // For instrumented tests.
     androidTestImplementation(libs.hilt.android.testing)

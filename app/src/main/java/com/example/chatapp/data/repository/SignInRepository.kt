@@ -3,6 +3,7 @@ package com.example.chatapp.data.repository
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
+import android.util.Log
 import com.example.chatapp.R
 import com.example.chatapp.data.model.SignInResult
 import com.example.chatapp.data.model.UserData
@@ -12,6 +13,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 import kotlinx.coroutines.tasks.await
@@ -22,7 +24,7 @@ interface SignInRepository {
     suspend fun signInGoogleWithIntent(intent: Intent): SignInResult
     suspend fun signOut()
     fun getSignedInUser(): UserData?
-    fun saveUserInfo(): String
+    suspend fun saveUserInfo(): String
 }
 
 class SignInRepositoryImpl @Inject constructor(
@@ -88,50 +90,56 @@ class SignInRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun saveUserInfo(): String {
-        var errorMessage = ""
+    override suspend fun saveUserInfo(): String {
         val db = Firebase.firestore
         val currentUser = Firebase.auth.currentUser
+        val token: String?
 
-        val userData = currentUser?.run {
-            UserData(
-                UID = uid,
-                username = displayName,
-                profilePictureUrl = photoUrl?.toString()
+        try {
+            token = FirebaseMessaging.getInstance().token.await()
+            Log.d("aaa", "Registration token: $token")
+
+            val userData = currentUser?.run {
+                UserData(
+                    UID = uid,
+                    username = displayName,
+                    profilePictureUrl = photoUrl?.toString()
+                )
+            }
+
+            if (userData == null) {
+                return "Error: User data is null"
+            }
+
+            val userMap = hashMapOf(
+                "UID" to userData.UID,
+                "username" to userData.username,
+                "profilePictureUrl" to userData.profilePictureUrl
             )
-        }
-
-        if (userData == null) {
-            return context.getString(R.string.error_save_UID_user_null)
-        }
-
-        val userMap = hashMapOf(
-            "UID" to userData.UID,
-            "username" to userData.username,
-            "profilePictureUrl" to userData.profilePictureUrl
-        )
-
-        db.collection("users")
-            .whereEqualTo("UID", currentUser.uid)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    // If don't find user with this UID, add to firestore
-                    db.collection("users")
-                        .add(userMap)
-                        .addOnSuccessListener {
-                            // success
-                        }
-                        .addOnFailureListener { e ->
-                            errorMessage = e.message.toString()
-                        }
-                }
-            }
-            .addOnFailureListener { e ->
-                errorMessage = e.message.toString()
+            if (token != null) {
+                userMap["FCMToken"] = token
             }
 
-        return errorMessage
+            // Check if user already exists
+            val documents = db.collection("users")
+                .whereEqualTo("UID", currentUser.uid)
+                .get()
+                .await()
+
+            if (documents.isEmpty) {
+                // Save user info to Firestore if user doesn't exist
+                db.collection("users")
+                    .add(userMap)
+                    .await()
+                return ""
+            } else {
+                return ""
+            }
+
+        } catch (e: Exception) {
+            Log.e("aaa", "Error saving user info: ${e.message}")
+            return "Error: ${e.message}"
+        }
     }
 
     private fun buildGoogleSignInRequest(): BeginSignInRequest {

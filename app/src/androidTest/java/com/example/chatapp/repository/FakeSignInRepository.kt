@@ -36,7 +36,7 @@ class AuthenticatedFakeSignInRepository @Inject constructor() : SignInRepository
         }
     }
 
-    override fun saveUserInfo(): String {
+    override suspend fun saveUserInfo(): String {
         return ""
     }
 }
@@ -58,7 +58,7 @@ class UnauthenticatedFakeSignInRepository @Inject constructor() : SignInReposito
         return null
     }
 
-    override fun saveUserInfo(): String {
+    override suspend fun saveUserInfo(): String {
         return "errorMessage"
     }
 }
